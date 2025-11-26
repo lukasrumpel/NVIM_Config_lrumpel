@@ -15,15 +15,9 @@ return {
       local env_path = os.getenv("HOME") .. "/.julia/environments/v1.12"
 
       dap.adapters.julia = {
-        type = "executable",
-        command = "julia",
-        args = {
-          "--startup-file=no",
-          "--history-file=no",
-          "--project=" .. env_path,
-          "-e",
-          "import DebugAdapter; DebugAdapter.run()",
-        },
+        type = "server",
+        host = "127.0.0.1",
+        port = 1234,
       }
 
       dap.configurations.julia = {
