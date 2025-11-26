@@ -1,12 +1,12 @@
 return {
-  -- 1. Füge Hardware-LSPs zu Mason hinzu (Installer)
+  -- 1. Füge Hardware-LSPs zu Mason hinzu
   {
     "mason-org/mason.nvim",
     opts = function(_, opts)
       opts.ensure_installed = opts.ensure_installed or {}
       vim.list_extend(opts.ensure_installed, {
         "rust_hdl", -- VHDL LSP
-        "verible",  -- Verilog/SystemVerilog LSP & Linter
+        "verible",  -- Verilog LSP
         "asm-lsp",  -- Assembler LSP
       })
     end,
@@ -17,16 +17,16 @@ return {
     "neovim/nvim-lspconfig",
     opts = {
       servers = {
-        -- VHDL
+        -- VHDL: HIER WAR DER FEHLER
         rust_hdl = {
-          -- Optional: cmd Pfad anpassen, falls manuell installiert
-          -- cmd = {"vhdl_ls"},
+          -- Wir definieren den Befehl explizit, damit "nil" nicht passiert
+          cmd = { "vhdl_ls" },
+          root_dir = require("lspconfig.util").root_pattern("vhdl_ls.toml"),
         },
-        -- Verilog / SystemVerilog
+        -- Verilog
         verible = {
           cmd = { "verible-verilog-ls", "--rules_config_search" },
           root_dir = function(fname)
-            -- Sucht nach einer verible.filelist oder .git
             return require("lspconfig.util").root_pattern("verible.filelist", ".git")(fname) or vim.fn.getcwd()
           end,
         },
@@ -38,7 +38,7 @@ return {
     },
   },
 
-  -- 3. Syntax Highlighting (Treesitter) erweitern
+  -- 3. Syntax Highlighting
   {
     "nvim-treesitter/nvim-treesitter",
     opts = function(_, opts)
@@ -46,23 +46,8 @@ return {
         vim.list_extend(opts.ensure_installed, {
           "vhdl",
           "verilog",
-          "systemrdl", -- Oft nützlich für Hardware
         })
       end
     end,
   },
-
-  -- 4. Filetype Association für SystemC und Assembler fixen
-  {
-    "nmac427/guess-indent.nvim", -- Optional, hilft bei wirren Einrückungen
-    init = function()
-      -- SystemC Header als C++ behandeln
-      vim.filetype.add({
-        extension = {
-          h = "cpp",
-          sc = "cpp",
-        },
-      })
-    end,
-  }
 }
